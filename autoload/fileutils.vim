@@ -195,13 +195,44 @@ function! s:cmd_rename(...) "{{{
         return
     endif
 
+    " XXX: 'setlocal autoread' and
+    " 'setglobal autoread' and
+    " 'autocmd FileChangedShell' also do not work.
+    " This is expected behavior?
+    let save_global_autoread = &g:autoread
+    let save_local_autoread  = &l:autoread
+    set autoread
+
+    augroup fileutils-delete
+        autocmd!
+        autocmd FileChangedShell * let v:fcs_choice = ''
+    augroup END
+
     try
         call rename(from, to)
-        if from ==# expand('%') && filereadable(to)
-            edit `=to`
+        if !filereadable(to)
+            throw "fileutil: renamed file is not readable: ".to
         endif
+
+        " Reload changed buffer. (autoread)
+        checktime
+
+        " If renamed file was opened, open renamed buffer.
+        " If kept editing and save old file,
+        " old file will be created.
+        let save_winnr = winnr()
+        windo if from ==# expand('%') | silent edit `=to` | endif
+        execute save_winnr.'wincmd w'
     catch
-        call s:warn("Can't rename():" from "=>" to)
+        call s:warn("fileutil: Can't rename() ".from." to ".to.": ".v:exception)
+    finally
+            if save_global_autoread ==# save_local_autoread
+                let &g:autoread = save_global_autoread
+                set autoread<
+            else
+                let &l:autoread = save_local_autoread
+                let &g:autoread = save_global_autoread
+            endif
     endtry
 endfunction "}}}
 
