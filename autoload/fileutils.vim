@@ -89,6 +89,22 @@ function! fileutils#load(...) "{{{
 endfunction "}}}
 
 
+function! s:echomsg(hl, msg) "{{{
+    execute 'echohl' a:hl
+    try
+        echomsg a:msg
+    finally
+        echohl None
+    endtry
+endfunction "}}}
+function! s:warn(msg) "{{{
+    call s:echomsg('WarningMsg', a:msg)
+endfunction "}}}
+function! s:error(msg) "{{{
+    call s:echomsg('Error', a:msg)
+endfunction "}}}
+
+
 " :FuOpen {{{1
 function! s:cmd_open(...) "{{{
     let dir =   a:0 == 1 ? a:1 : '.'
