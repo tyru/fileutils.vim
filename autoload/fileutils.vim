@@ -89,7 +89,7 @@ function! fileutils#load(...) "{{{
 endfunction "}}}
 
 
-" :Open {{{1 
+" :FuOpen {{{1
 function! s:cmd_open(...) "{{{
     let dir =   a:0 == 1 ? a:1 : '.'
 
@@ -109,10 +109,10 @@ function! s:cmd_open(...) "{{{
 endfunction "}}}
 
 
-" :Copy (TODO) {{{1
+" :FuCopy (TODO) {{{1
 
 
-" :Delete {{{1
+" :FuDelete {{{1
 
 function! s:cmd_delete(args, delete_buffer) "{{{
     if empty(a:args)
@@ -160,7 +160,7 @@ function! s:cmd_delete(args, delete_buffer) "{{{
 endfunction "}}}
 
 
-" :Rename {{{1
+" :FuRename {{{1
 
 function! s:cmd_rename(...) "{{{
     if a:0 == 1
@@ -185,7 +185,7 @@ function! s:cmd_rename(...) "{{{
 endfunction "}}}
 
 
-" :Mkdir {{{1
+" :FuMkdir {{{1
 function! s:cmd_mkdir(...)
     for i in a:000
         call mkdir(expand(i), 'p')
@@ -194,10 +194,10 @@ endfunction
 
 
 
-" :Mkcd {{{1
+" :FuMkcd {{{1
 
 
-" :Rmdir (TODO) {{{1
+" :FuRmdir (TODO) {{{1
 
 " }}}
 
