@@ -173,6 +173,11 @@ function! s:cmd_rename(...) "{{{
     if isdirectory(to)
         let to = to . '/' . fnamemodify(from, ':t')
     endif
+    if filereadable(to) && input("file '".to."' exists, overwrite? [y/n]:") !~? '^y\%[es]'
+        redraw
+        echo 'Canceled.'
+        return
+    endif
 
     try
         call rename(from, to)
