@@ -45,6 +45,10 @@ let s:EX_COMMANDS = {
 \       'opt': '-bar -nargs=1 -complete=dir',
 \       'def': 'silent! Mkdir <args> | cd <args>',
 \   },
+\   'FuFile': {
+\       'opt': '-bar -nargs=1 -complete=file',
+\       'def': 'call s:cmd_file(<f-args>)',
+\   },
 \}
 
 " }}}
@@ -255,6 +259,14 @@ endfunction
 
 
 " :FuRmdir (TODO) {{{1
+
+
+" :FuFile {{{1
+
+function! s:cmd_file(file)
+    let ftype = getftype(a:file)
+    echom "'".a:file."' is '".(ftype !=# '' ? ftype : 'unknown')."'."
+endfunction
 
 " }}}
 
