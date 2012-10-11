@@ -223,15 +223,15 @@ function! s:cmd_rename(...) "{{{
             throw "fileutil: renamed file is not readable: ".to
         endif
 
-        " Reload changed buffer. (autoread)
-        checktime
-
         " If renamed file was opened, open renamed buffer.
         " If kept editing and save old file,
         " old file will be created.
         let save_winnr = winnr()
         windo if from ==# expand('%') | silent edit `=to` | endif
         execute save_winnr.'wincmd w'
+
+        " Reload changed buffer. (autoread)
+        checktime
     catch
         call s:warn("fileutil: Can't rename() ".from." to ".to.": ".v:exception)
     finally
