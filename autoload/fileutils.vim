@@ -204,44 +204,33 @@ function! s:cmd_rename(...) "{{{
         return
     endif
 
-    " XXX: 'setlocal autoread' and
-    " 'setglobal autoread' and
-    " 'autocmd FileChangedShell' also do not work.
-    " This is expected behavior?
-    let save_global_autoread = &g:autoread
-    let save_local_autoread  = &l:autoread
-    set autoread
-
-    augroup fileutils-delete
-        autocmd!
-        autocmd FileChangedShell * let v:fcs_choice = ''
-    augroup END
-
     try
-        call rename(from, to)
+        let from_winnr = bufwinnr(bufnr(from))
+        if from_winnr isnot -1
+            " Use :saveas for a visible buffer.
+            let prev_winnr = winnr()
+            if from_winnr isnot prev_winnr
+                execute from_winnr.'wincmd w'
+            endif
+            try
+                saveas `=to`
+            finally
+                if from_winnr isnot prev_winnr
+                    execute prev_winnr.'wincmd w'
+                endif
+            endtry
+        else
+            " Use rename() for an invisible or non-loaded buffer.
+            call rename(from, to)
+        endif
+
         if !filereadable(to)
             throw "fileutil: renamed file is not readable: ".to
         endif
-
-        " If renamed file was opened, open renamed buffer.
-        " If kept editing and save old file,
-        " old file will be created.
-        let save_winnr = winnr()
-        windo if from ==# expand('%') | silent edit `=to` | endif
-        execute save_winnr.'wincmd w'
-
-        " Reload changed buffer. (autoread)
+        " Reload changed buffer. (for safety)
         checktime
     catch
         call s:warn("fileutil: Can't rename() ".from." to ".to.": ".v:exception)
-    finally
-            if save_global_autoread ==# save_local_autoread
-                let &g:autoread = save_global_autoread
-                set autoread<
-            else
-                let &l:autoread = save_local_autoread
-                let &g:autoread = save_global_autoread
-            endif
     endtry
 endfunction "}}}
 
