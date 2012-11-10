@@ -43,6 +43,10 @@ let s:EX_COMMANDS = {
 \       'opt': '-bar -nargs=1 -complete=file',
 \       'def': 'call s:cmd_file(<f-args>)',
 \   },
+\   'FuChmod': {
+\       'opt': '-bar -nargs=+ -complete=customlist,s:complete_chmod',
+\       'def': 'call s:cmd_chmod(<f-args>)',
+\   },
 \}
 
 " }}}
@@ -252,6 +256,62 @@ function! s:cmd_file(file)
     let ftype = getftype(a:file)
     echom "'".a:file."' is '".(ftype !=# '' ? ftype : 'unknown')."'."
 endfunction
+
+
+" :FuChmod {{{1
+
+function! s:cmd_chmod(opt, ...)
+    if !executable('chmod')
+        echoerr 'fileutils: chmod is not in the PATH.'
+        return
+    endif
+    let file = a:0 ? a:1 : expand('%')
+    if !filereadable(file)
+        echoerr "fileutils: '".file."' is not readable."
+        return
+    endif
+    if !s:check_chmod_opt(a:opt)
+        echoerr "fileutils: '".a:opt."' is not valid mode."
+        return
+    endif
+
+    silent execute '!chmod '.a:opt.' '.file
+endfunction
+
+let s:MODE_REGEX = '[ugoa]*\%([-+=]\%([rwxXst]*\|[ugo]\)\)\+'
+function! s:check_chmod_opt(opt)
+    " from manpage of chmod(1)
+    return a:opt =~# '^'.s:MODE_REGEX.'$'
+endfunction
+
+function! s:complete_chmod(arglead, cmdline, cursorpos)
+    let cmdline = substitute(a:cmdline, '^[A-Z][A-Za-z0-9]*\s*', '', '')
+    if cmdline =~# '^\s*$'
+        " Return most frequently used MODE arguments.
+        return ['+r', '+w', '+x', '-r', '-w', '-x']
+    elseif cmdline =~# '^\s*'.s:MODE_REGEX.'\s\+'
+        " Return files.
+        let files = s:V.glob(a:arglead.'*')
+        if len(files) is 1
+        \  && isdirectory(a:arglead)
+        \  && a:arglead !~# '/$'
+            return [a:arglead.'/']
+        endif
+        return files
+    elseif cmdline =~# '^\s*'.s:MODE_REGEX
+        " A complete MODE argument.
+        return [a:arglead.' ']
+    elseif cmdline =~# '^\s*[ugoa]$'
+        " Incomplete MODE argument.
+        return map(['+r', '+w', '+x', '-r', '-w', '-x'],
+        \          'a:arglead.v:val')
+    elseif cmdline =~# '^\s*[+-]'
+        " Incomplete MODE argument.
+        return map(['r', 'w', 'x'],
+        \          'a:arglead.v:val')
+    endif
+endfunction
+
 
 " }}}
 
