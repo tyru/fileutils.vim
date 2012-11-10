@@ -240,6 +240,8 @@ endfunction
 
 " :FuMkcd {{{1
 
+" See s:EX_COMMANDS .
+
 
 " :FuRmdir (TODO) {{{1
 
