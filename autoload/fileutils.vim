@@ -217,6 +217,7 @@ function! s:cmd_rename(...) "{{{
                     execute prev_winnr.'wincmd w'
                 endif
             endtry
+            call delete(from)
         else
             " Use rename() for an invisible or non-loaded buffer.
             call rename(from, to)
