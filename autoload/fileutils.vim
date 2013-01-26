@@ -211,7 +211,7 @@ function! s:cmd_rename(...) "{{{
                 execute from_winnr.'wincmd w'
             endif
             try
-                saveas `=to`
+                saveas! `=to`
             finally
                 if from_winnr isnot prev_winnr
                     execute prev_winnr.'wincmd w'
