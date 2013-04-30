@@ -157,9 +157,11 @@ function! s:cmd_delete(args, delete_buffer) "{{{
             endif
         elseif type ==# 'dir'
             " TODO
+            continue
         else
             redraw
             call s:warn(file . ": Unknown file type '" . type . "'.")
+            continue
         endif
 
         " Delete the buffer.
