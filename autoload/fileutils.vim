@@ -114,20 +114,21 @@ endfunction "}}}
 
 " :FuOpen {{{1
 function! s:cmd_open(...) "{{{
-    let dir =   a:0 == 1 ? a:1 : '.'
+    let dir = a:0 == 1 ? a:1 : '.'
+    let dir = fnamemodify(dir, ':p')
 
     if !isdirectory(dir)
         call s:warn(dir .': No such a directory')
         return
     endif
 
-    if has('win32')
-        " if dir =~ '[&()\[\]{}\^=;!+,`~ '. "']" && dir !~ '^".*"$'
-        "     let dir = '"'. dir .'"'
-        " endif
-        call tyru#util#system('explorer', dir)
+    if s:V.is_windows()
+        " explorer.exe does not correctly handle a path with slashes!
+        " (opens %USERPROFILE% if invalid path was given)
+        let dir = substitute(dir, '/', '\', 'g')
+        silent execute '!start explorer' dir
     else
-        call tyru#util#system('gnome-open', dir)
+        silent execute '!gnome-open' dir
     endif
 endfunction "}}}
 
