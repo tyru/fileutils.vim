@@ -16,7 +16,7 @@ let s:L = s:V.import('Data.List')
 
 let s:EX_COMMANDS = {
 \   'FuOpen': {
-\       'opt': '-bar -nargs=? -complete=dir',
+\       'opt': '-bar -nargs=1 -complete=file',
 \       'def': 'call s:cmd_open(<f-args>)',
 \   },
 \   'FuDelete': {
@@ -113,20 +113,26 @@ endfunction "}}}
 
 
 " :FuOpen {{{1
-function! s:cmd_open(...) "{{{
-    let dir = a:0 == 1 ? a:1 : '.'
-    let dir = fnamemodify(dir, ':p')
-
-    if !isdirectory(dir)
-        call s:warn(dir .': No such a directory')
+function! s:cmd_open(path) "{{{
+    let path = resolve(a:path)
+    let ftype = getftype(path)
+    if ftype !=# 'dir' && ftype !=# 'file'
+        call s:warn("'" . path ."' is neither dir nor file.")
         return
     endif
 
     if s:V.is_windows()
         " explorer.exe does not correctly handle a path with slashes!
         " (opens %USERPROFILE% if invalid path was given)
-        let dir = substitute(dir, '/', '\', 'g')
-        silent execute '!start explorer' dir
+        let path = substitute(path, '/', '\', 'g')
+        " cp932 is Japanese cmd.exe encoding
+        " TODO: i18n
+        let path = iconv(path, &encoding, 'cp932')
+        if ftype ==# 'dir'
+            silent execute '!start explorer' path
+        else
+            silent execute '! start' path
+        endif
     else
         silent execute '!gnome-open' dir
     endif
