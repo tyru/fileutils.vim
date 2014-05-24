@@ -202,6 +202,10 @@ function! s:cmd_rename(...) "{{{
     else
         return
     endif
+    if getftype(from) ==# ''
+        echoerr "fileutils: No such a file: '" . from . "'"
+        return
+    endif
     if isdirectory(to)
         let to = to . '/' . fnamemodify(from, ':t')
     endif
