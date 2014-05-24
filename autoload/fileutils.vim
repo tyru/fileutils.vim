@@ -8,7 +8,7 @@ set cpo&vim
 
 " Vital {{{
 let s:V = vital#of('fileutils.vim')
-let s:L = s:V.import('Data.List')
+let s:List = s:V.import('Data.List')
 " }}}
 
 
@@ -149,7 +149,7 @@ function! s:cmd_delete(args, delete_buffer) "{{{
         return
     endif
 
-    for file in s:L.flatten(map(a:args, 's:V.glob(v:val)'))
+    for file in s:List.flatten(map(a:args, 's:V.glob(v:val)'))
         let file = expand(file)
         " let file = resolve(file)
         let bufnr = bufnr(file)
