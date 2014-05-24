@@ -7,9 +7,11 @@ set cpo&vim
 " }}}
 
 " Vital {{{
-let s:V = vital#of('fileutils.vim')
+let s:V = vital#of('fileutils')
+let s:Prelude = s:V.import('Prelude')
 let s:List = s:V.import('Data.List')
 let s:File = s:V.import('System.File')
+let s:Filepath = s:V.import('System.Filepath')
 " }}}
 
 
@@ -122,7 +124,7 @@ function! s:cmd_open(path) "{{{
         return
     endif
 
-    if s:V.is_windows()
+    if s:Prelude.is_windows()
         " explorer.exe does not correctly handle a path with slashes!
         " (opens %USERPROFILE% if invalid path was given)
         let path = substitute(path, '/', '\', 'g')
@@ -195,36 +197,57 @@ endfunction "}}}
 
 " :FuRename {{{1
 
+" Usage:
+" * FuRename SOURCE
+" * FuRename SOURCE DESTINATION
+" * FuRename [SOURCES ...] DESTINATION
 function! s:cmd_rename(...) "{{{
-    if a:0 == 1
-        let [from, to] = [expand('%'), expand(a:1)]
-    elseif a:0 == 2
-        let [from, to] = [expand(a:1), expand(a:2)]
+    let files = s:get_files_list((a:0 == 1 ? ['%'] : []) + a:000)
+    if len(files) > 1
+        let to = remove(files, -1)
+        let from_files = files
     else
-        return
+        throw 'len(files) must be greater than one!'
     endif
+
+    for from in from_files
+        call s:do_rename(from, to)
+    endfor
+    " Reload changed buffer.
+    " (for safety, maybe Vim automatically do this)
+    checktime
+endfunction "}}}
+
+function! s:get_files_list(files)
+    let newline = '\n'
+    return s:List.flatten(map(copy(a:files), 'split(expand(v:val), newline)'))
+endfunction
+
+function! s:do_rename(from, to)
+    let [from, to] = [a:from, a:to]
+
     if getftype(from) ==# ''
         echoerr "fileutils: No such a file: '" . from . "'"
-        return
+        continue
     endif
     if isdirectory(to)
         let to = to . '/' . fnamemodify(from, ':t')
     endif
+
     if filereadable(to) && input("file '".to."' exists, overwrite? [y/n]:") !~? '^y\%[es]'
         redraw
         echo 'Canceled.'
         return
     endif
 
-    call s:File.move(from, to)
-
-    if getftype(to) ==# ''
-        echoerr 'fileutils: Could not move a file or directory.'
-        return
+    let from = s:Filepath.unify_separator(from)
+    let to   = s:Filepath.unify_separator(to)
+    if !s:File.move(from, to) || getftype(to) ==# ''
+        echoerr 'Could not move a file or directory.'
+    else
+        echom printf('Renamed: %s -> %s', from, to)
     endif
-    " Reload changed buffer. (for safety)
-    checktime
-endfunction "}}}
+endfunction
 
 
 " :FuMkdir {{{1
