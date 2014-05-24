@@ -9,6 +9,7 @@ set cpo&vim
 " Vital {{{
 let s:V = vital#of('fileutils.vim')
 let s:List = s:V.import('Data.List')
+let s:File = s:V.import('System.File')
 " }}}
 
 
@@ -215,35 +216,14 @@ function! s:cmd_rename(...) "{{{
         return
     endif
 
-    try
-        let from_winnr = bufwinnr(bufnr(from))
-        if from_winnr isnot -1
-            " Use :saveas for a visible buffer.
-            let prev_winnr = winnr()
-            if from_winnr isnot prev_winnr
-                execute from_winnr.'wincmd w'
-            endif
-            try
-                saveas! `=to`
-            finally
-                if from_winnr isnot prev_winnr
-                    execute prev_winnr.'wincmd w'
-                endif
-            endtry
-            call delete(from)
-        else
-            " Use rename() for an invisible or non-loaded buffer.
-            call rename(from, to)
-        endif
+    call s:File.move(from, to)
 
-        if !filereadable(to)
-            throw "fileutil: renamed file is not readable: ".to
-        endif
-        " Reload changed buffer. (for safety)
-        checktime
-    catch
-        call s:warn("fileutil: Can't rename() ".from." to ".to.": ".v:exception)
-    endtry
+    if getftype(to) ==# ''
+        echoerr 'fileutils: Could not move a file or directory.'
+        return
+    endif
+    " Reload changed buffer. (for safety)
+    checktime
 endfunction "}}}
 
 
