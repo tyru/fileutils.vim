@@ -122,7 +122,7 @@ function! s:error(msg) "{{{
 endfunction "}}}
 function! s:debug(...) "{{{
     if g:fileutils_debug
-        call call('s:echomsg', a:000)
+        call call('s:echomsg', a:000 + (a:0 == 1 ? ['Debug'] : []))
     endif
 endfunction "}}}
 
@@ -261,10 +261,10 @@ function! s:do_rename(from, to)
     if !ret || dest_doesnt_exist
         call s:echomsg('Could not move a file or directory.')
         if !ret
-            call s:debug('File.move() returned zero value.', 'Error')
+            call s:debug('File.move() returned zero value.')
         endif
         if dest_doesnt_exist
-            call s:debug('Destination path does not exist: ' . to, 'Error')
+            call s:debug('Destination path does not exist: ' . to)
         endif
     else
         call s:echomsg(printf('Renamed: %s -> %s', from, to))
