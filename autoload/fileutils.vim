@@ -14,6 +14,9 @@ let s:File = s:V.import('System.File')
 let s:Filepath = s:V.import('System.Filepath')
 " }}}
 
+if !exists('g:fileutils_debug')
+    let g:fileutils_debug = 0
+endif
 
 " s:EX_COMMANDS {{{
 
@@ -99,19 +102,28 @@ function! fileutils#load(...) "{{{
 endfunction "}}}
 
 
-function! s:echomsg(hl, msg) "{{{
-    execute 'echohl' a:hl
+function! s:echomsg(msg, ...) "{{{
+    if a:0 > 0
+        execute 'echohl' a:1
+    endif
     try
         echomsg a:msg
     finally
-        echohl None
+        if a:0 > 0
+            echohl None
+        endif
     endtry
 endfunction "}}}
 function! s:warn(msg) "{{{
-    call s:echomsg('WarningMsg', a:msg)
+    call s:echomsg(a:msg, 'WarningMsg')
 endfunction "}}}
 function! s:error(msg) "{{{
-    call s:echomsg('Error', a:msg)
+    call s:echomsg(a:msg, 'Error')
+endfunction "}}}
+function! s:debug(...) "{{{
+    if g:fileutils_debug
+        call call('s:echomsg', a:000)
+    endif
 endfunction "}}}
 
 
@@ -244,10 +256,18 @@ function! s:do_rename(from, to)
 
     let from = s:Filepath.unify_separator(from)
     let to   = s:Filepath.unify_separator(to)
-    if !s:File.move(from, to) || getftype(to) ==# ''
-        echoerr 'Could not move a file or directory.'
+    let ret = s:File.move(from, to)
+    let dest_doesnt_exist = getftype(to) ==# ''
+    if !ret || dest_doesnt_exist
+        call s:echomsg('Could not move a file or directory.')
+        if !ret
+            call s:debug('File.move() returned zero value.', 'Error')
+        endif
+        if dest_doesnt_exist
+            call s:debug('Destination path does not exist: ' . to, 'Error')
+        endif
     else
-        echom printf('Renamed: %s -> %s', from, to)
+        call s:echomsg(printf('Renamed: %s -> %s', from, to))
     endif
 endfunction
 
@@ -273,7 +293,7 @@ endfunction
 
 function! s:cmd_file(file)
     let ftype = getftype(a:file)
-    echom "'".a:file."' is '".(ftype !=# '' ? ftype : 'unknown')."'."
+    call s:echomsg("'".a:file."' is '".(ftype !=# '' ? ftype : 'unknown')."'.")
 endfunction
 
 
