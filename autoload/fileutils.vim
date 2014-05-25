@@ -202,13 +202,15 @@ endfunction "}}}
 " * FuRename SOURCE DESTINATION
 " * FuRename [SOURCES ...] DESTINATION
 function! s:cmd_rename(...) "{{{
-    let files = s:get_files_list((a:0 == 1 ? ['%'] : []) + a:000)
-    if len(files) > 1
-        let to = remove(files, -1)
-        let from_files = files
-    else
-        throw 'len(files) must be greater than one!'
+    let files = s:get_files_list(a:000)
+    if empty(files)
+        throw 'len(files) must not be zero!'
     endif
+    if len(files) == 1
+        call insert(files, expand('%'))
+    endif
+    let to = remove(files, -1)
+    let from_files = files
 
     for from in from_files
         call s:do_rename(from, to)
