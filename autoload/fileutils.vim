@@ -7,11 +7,52 @@ set cpo&vim
 " }}}
 
 " Vital {{{
-let s:V = vital#of('fileutils')
-let s:Prelude = s:V.import('Prelude')
-let s:List = s:V.import('Data.List')
-let s:File = s:V.import('System.File')
-let s:Filepath = s:V.import('System.Filepath')
+let s:Vital = {}
+let s:Prelude = {}
+let s:List = {}
+let s:File = {}
+let s:Filepath = {}
+
+function! s:Vital()
+    if !empty(s:Vital)
+        return s:Vital
+    endif
+    let s:Vital = vital#of('fileutils')
+    return s:Vital
+endfunction
+
+function! s:Prelude()
+    if !empty(s:Prelude)
+        return s:Prelude
+    endif
+    let s:Prelude = s:Vital().import('Prelude')
+    return s:Prelude
+endfunction
+
+function! s:List()
+    if !empty(s:List)
+        return s:List
+    endif
+    let s:List = s:Vital().import('Data.List')
+    return s:List
+endfunction
+
+function! s:File()
+    if !empty(s:File)
+        return s:File
+    endif
+    let s:File = s:Vital().import('System.File')
+    return s:File
+endfunction
+
+function! s:Filepath()
+    if !empty(s:Filepath)
+        return s:Filepath
+    endif
+    let s:Filepath = s:Vital().import('System.Filepath')
+    return s:Filepath
+endfunction
+
 " }}}
 
 if !exists('g:fileutils_debug')
@@ -136,7 +177,7 @@ function! s:cmd_open(path) "{{{
         return
     endif
 
-    if s:Prelude.is_windows()
+    if s:Prelude().is_windows()
         " explorer.exe does not correctly handle a path with slashes!
         " (opens %USERPROFILE% if invalid path was given)
         let path = substitute(path, '/', '\', 'g')
@@ -164,7 +205,7 @@ function! s:cmd_delete(args, delete_buffer) "{{{
         return
     endif
 
-    for file in s:List.flatten(map(a:args, 's:Prelude.glob(v:val)'))
+    for file in s:List().flatten(map(a:args, 's:Prelude().glob(v:val)'))
         let file = expand(file)
         " let file = resolve(file)
         let bufnr = bufnr(file)
@@ -234,7 +275,7 @@ endfunction "}}}
 
 function! s:get_files_list(files)
     let newline = '\n'
-    return s:List.flatten(map(copy(a:files), 'split(expand(v:val), newline)'))
+    return s:List().flatten(map(copy(a:files), 'split(expand(v:val), newline)'))
 endfunction
 
 function! s:do_rename(from, to)
@@ -254,9 +295,9 @@ function! s:do_rename(from, to)
         return
     endif
 
-    let from = s:Filepath.unify_separator(from)
-    let to   = s:Filepath.unify_separator(to)
-    let ret = s:File.move(from, to)
+    let from = s:Filepath().unify_separator(from)
+    let to   = s:Filepath().unify_separator(to)
+    let ret = s:File().move(from, to)
     let dest_doesnt_exist = getftype(to) ==# ''
     if !ret || dest_doesnt_exist
         call s:echomsg('Could not move a file or directory.')
@@ -330,7 +371,7 @@ function! s:complete_chmod(arglead, cmdline, cursorpos)
         return ['+r', '+w', '+x', '-r', '-w', '-x']
     elseif cmdline =~# '^\s*'.s:MODE_REGEX.'\s\+'
         " Return files.
-        let files = s:Prelude.glob(a:arglead.'*')
+        let files = s:Prelude().glob(a:arglead.'*')
         if len(files) is 1
         \  && isdirectory(a:arglead)
         \  && a:arglead !~# '/$'
