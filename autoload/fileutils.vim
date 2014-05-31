@@ -164,7 +164,7 @@ function! s:cmd_delete(args, delete_buffer) "{{{
         return
     endif
 
-    for file in s:List.flatten(map(a:args, 's:V.glob(v:val)'))
+    for file in s:List.flatten(map(a:args, 's:Prelude.glob(v:val)'))
         let file = expand(file)
         " let file = resolve(file)
         let bufnr = bufnr(file)
@@ -330,7 +330,7 @@ function! s:complete_chmod(arglead, cmdline, cursorpos)
         return ['+r', '+w', '+x', '-r', '-w', '-x']
     elseif cmdline =~# '^\s*'.s:MODE_REGEX.'\s\+'
         " Return files.
-        let files = s:V.glob(a:arglead.'*')
+        let files = s:Prelude.glob(a:arglead.'*')
         if len(files) is 1
         \  && isdirectory(a:arglead)
         \  && a:arglead !~# '/$'
