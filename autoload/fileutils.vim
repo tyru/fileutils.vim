@@ -86,6 +86,10 @@ let s:EX_COMMANDS = {
 \       'opt': '-bar -nargs=1 -complete=dir',
 \       'def': 'silent! Mkdir <args> | cd <args>',
 \   },
+\   'FuRmdir': {
+\       'opt': '-bar -nargs=+ -complete=dir',
+\       'def': 'call s:cmd_rmdir(<f-args>)',
+\   },
 \   'FuFile': {
 \       'opt': '-bar -nargs=1 -complete=file',
 \       'def': 'call s:cmd_file(<f-args>)',
@@ -337,6 +341,9 @@ endfunction
 
 " :FuRmdir (TODO) {{{1
 
+function! s:cmd_rmdir(...)
+    echoerr ':FuRmdir is not implemented yet...'
+endfunction
 
 " :FuFile {{{1
 
