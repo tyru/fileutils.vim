@@ -296,7 +296,7 @@ function! s:do_rename_or_copy_one(rename, from, to)
         let to = to . '/' . fnamemodify(from, ':t')
     endif
 
-    if filereadable(to) && input("file '".to."' exists, overwrite? [y/n]:") !~? '^y\%[es]'
+    if filereadable(to) && s:input("file '".to."' exists, overwrite? [y/n]:") !~? '^y\%[es]'
         redraw
         echo 'Canceled.'
         return
@@ -318,6 +318,12 @@ function! s:do_rename_or_copy_one(rename, from, to)
     else
         call s:echomsg(printf((a:rename ? 'Renamed' : 'Copied') . ': %s -> %s', from, to))
     endif
+endfunction
+
+function! s:input(...)
+    let ret = call('input', a:000)
+    echon "\n"
+    return ret
 endfunction
 
 
