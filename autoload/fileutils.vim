@@ -195,8 +195,11 @@ function! s:cmd_open(path) "{{{
 endfunction "}}}
 
 
-" :FuCopy (TODO) {{{1
+" :FuCopy {{{1
 
+function! s:cmd_copy(...)
+    call call('s:do_rename_or_copy', [0] + a:000)
+endfunction
 
 " :FuDelete {{{1
 
@@ -254,7 +257,11 @@ endfunction "}}}
 " * FuRename SOURCE
 " * FuRename SOURCE DESTINATION
 " * FuRename [SOURCES ...] DESTINATION
-function! s:cmd_rename(...) "{{{
+function! s:cmd_rename(...)
+    call call('s:do_rename_or_copy', [1] + a:000)
+endfunction
+
+function! s:do_rename_or_copy(rename, ...)
     let files = s:get_files_list(a:000)
     if empty(files)
         throw 'len(files) must not be zero!'
@@ -266,19 +273,19 @@ function! s:cmd_rename(...) "{{{
     let from_files = files
 
     for from in from_files
-        call s:do_rename(from, to)
+        call s:do_rename_or_copy_one(a:rename, from, to)
     endfor
     " Reload changed buffer.
     " (for safety, maybe Vim automatically do this)
     checktime
-endfunction "}}}
+endfunction
 
 function! s:get_files_list(files)
     let newline = '\n'
     return s:List().flatten(map(copy(a:files), 'split(expand(v:val), newline)'))
 endfunction
 
-function! s:do_rename(from, to)
+function! s:do_rename_or_copy_one(rename, from, to)
     let [from, to] = [a:from, a:to]
 
     if getftype(from) ==# ''
@@ -297,18 +304,19 @@ function! s:do_rename(from, to)
 
     let from = s:Filepath().unify_separator(from)
     let to   = s:Filepath().unify_separator(to)
-    let ret = s:File().move(from, to)
+    let op   = (a:rename ? 'move' : 'copy')
+    let ret  = s:File()[op](from, to)
     let dest_doesnt_exist = getftype(to) ==# ''
     if !ret || dest_doesnt_exist
-        call s:echomsg('Could not move a file or directory.')
+        call s:echomsg('Could not ' . op . ' a file or directory.')
         if !ret
-            call s:debug('File.move() returned zero value.')
+            call s:debug('File.' . op . '() returned zero value.')
         endif
         if dest_doesnt_exist
             call s:debug('Destination path does not exist: ' . to)
         endif
     else
-        call s:echomsg(printf('Renamed: %s -> %s', from, to))
+        call s:echomsg(printf((a:rename ? 'Renamed' : 'Copied') . ': %s -> %s', from, to))
     endif
 endfunction
 
