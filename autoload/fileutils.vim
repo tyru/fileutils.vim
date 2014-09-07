@@ -208,10 +208,6 @@ endfunction
 " :FuDelete {{{1
 
 function! s:cmd_delete(args, delete_buffer) "{{{
-    if empty(a:args)
-        return
-    endif
-
     for file in s:List().flatten(map(a:args, 's:Prelude().glob(v:val)'))
         let file = expand(file)
         " let file = resolve(file)
