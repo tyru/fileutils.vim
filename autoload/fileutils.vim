@@ -341,10 +341,31 @@ endfunction
 " See s:EX_COMMANDS .
 
 
-" :FuRmdir (TODO) {{{1
+" :FuRmdir {{{1
 
 function! s:cmd_rmdir(...)
-    echoerr ':FuRmdir is not implemented yet...'
+    let args = copy(a:000)
+    let flags = ''
+    while args[0] =~# '^-'
+        if args[0] ==# '--'
+            call remove(args, 0)
+            break
+        elseif args[0] ==# '-r'
+            let flags .= 'r'
+        endif
+        call remove(args, 0)
+    endwhile
+    for file in args
+        try
+            call s:File().rmdir(file, flags)
+            call s:echomsg('Deleted directory: ' . file)
+        catch
+            call s:warn(v:exception)
+            call s:warn('  Failed to rmdir: ' . file)
+            call s:warn('  If you wish to delete non-empty directory,')
+            call s:warn('  Specify -r option. (ex: :FuRmdir -r nonempty)')
+        endtry
+    endfor
 endfunction
 
 " :FuFile {{{1
