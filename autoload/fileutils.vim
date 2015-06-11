@@ -59,91 +59,19 @@ if !exists('g:fileutils_debug')
     let g:fileutils_debug = 0
 endif
 
-" s:EX_COMMANDS {{{
 
-let s:EX_COMMANDS = {
-\   'FuOpen': {
-\       'opt': '-bar -nargs=1 -complete=file',
-\       'def': 'call s:cmd_open(<f-args>)',
-\   },
-\   'FuDelete': {
-\       'opt': '-bar -bang -nargs=+ -complete=file',
-\       'def': 'call s:cmd_delete([<f-args>], <bang>0)',
-\   },
-\   'FuCopy': {
-\       'opt': '-bar -nargs=+ -complete=file',
-\       'def': 'call s:cmd_copy(<f-args>)',
-\   },
-\   'FuRename': {
-\       'opt': '-bar -nargs=+ -complete=file',
-\       'def': 'call s:cmd_rename(<f-args>)',
-\   },
-\   'FuMkdir': {
-\       'opt': '-bar -nargs=+ -complete=dir',
-\       'def': 'call s:cmd_mkdir(<f-args>)',
-\   },
-\   'FuMkcd': {
-\       'opt': '-bar -nargs=1 -complete=dir',
-\       'def': 'silent! Mkdir <args> | cd <args>',
-\   },
-\   'FuRmdir': {
-\       'opt': '-bar -nargs=+ -complete=dir',
-\       'def': 'call s:cmd_rmdir(<f-args>)',
-\   },
-\   'FuFile': {
-\       'opt': '-bar -nargs=1 -complete=file',
-\       'def': 'call s:cmd_file(<f-args>)',
-\   },
-\   'FuChmod': {
-\       'opt': '-bar -nargs=+ -complete=customlist,s:complete_chmod',
-\       'def': 'call s:cmd_chmod(<f-args>)',
-\   },
-\}
-
-" }}}
-
-function! fileutils#load(...) "{{{
-    " Define Ex commands.
-    " This can change those names like:
-    "   call fileutils#load({
-    "   \   'FuMap': 'Map',
-    "   \   'FuDefMacroMap': 'DefMacroMap',
-    "   \   'FuDefMap': 'DefMap',
-    "   \   'FuSetPragmas': 'SetPragmas',
-    "   \})
-    "   call fileutils#load('noprefix')    " same as above
-
-    let PREFIX = 'Fu'
-    if a:0
-        if type(a:1) == type({})
-            let def_names = a:1
-        elseif type(a:1) == type("") && a:1 ==# 'noprefix'
-            let def_names = map(
-            \   copy(s:EX_COMMANDS),
-            \   'substitute(v:key, "^".PREFIX, "", "")'
-            \)
-        else
-            call s:error("invalid arguments for fileutils#load().")
-            return
-        endif
-    else
-        let def_names = {}
-    endif
-
-    for [name, info] in items(s:EX_COMMANDS)
-        let def =
-        \   substitute(
-        \       info.def,
-        \       '<cmdname>\C',
-        \       string(name),
-        \       ''
-        \   )
-        execute
-        \   'command!'
-        \   info.opt
-        \   get(def_names, name, name)
-        \   def
-    endfor
+" Define Ex commands.
+" This can change those names like:
+"   call fileutils#load({
+"   \   'FuMap': 'Map',
+"   \   'FuDefMacroMap': 'DefMacroMap',
+"   \   'FuDefMap': 'DefMap',
+"   \   'FuSetPragmas': 'SetPragmas',
+"   \})
+"   call fileutils#load('noprefix')    " same as above
+function! fileutils#load(arg) "{{{
+    unlet! g:fileutils_commands
+    let g:fileutils_commands = a:arg
 endfunction "}}}
 
 
