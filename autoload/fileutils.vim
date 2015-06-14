@@ -101,7 +101,7 @@ endfunction "}}}
 
 
 " :FuOpen {{{1
-function! s:cmd_open(path) "{{{
+function! fileutils#_cmd_open(path) "{{{
     let path = resolve(a:path)
     let ftype = getftype(path)
     if ftype !=# 'dir' && ftype !=# 'file'
@@ -129,13 +129,13 @@ endfunction "}}}
 
 " :FuCopy {{{1
 
-function! s:cmd_copy(...)
+function! fileutils#_cmd_copy(...)
     call call('s:do_rename_or_copy', [0] + a:000)
 endfunction
 
 " :FuDelete {{{1
 
-function! s:cmd_delete(args, delete_buffer) "{{{
+function! fileutils#_cmd_delete(args, delete_buffer) "{{{
     for file in s:List().flatten(map(a:args, 's:Prelude().glob(v:val)'))
         let file = expand(file)
         " let file = resolve(file)
@@ -185,7 +185,7 @@ endfunction "}}}
 " * FuRename SOURCE
 " * FuRename SOURCE DESTINATION
 " * FuRename [SOURCES ...] DESTINATION
-function! s:cmd_rename(...)
+function! fileutils#_cmd_rename(...)
     call call('s:do_rename_or_copy', [1] + a:000)
 endfunction
 
@@ -256,7 +256,7 @@ endfunction
 
 
 " :FuMkdir {{{1
-function! s:cmd_mkdir(...)
+function! fileutils#_cmd_mkdir(...)
     for i in a:000
         call mkdir(expand(i), 'p')
     endfor
@@ -298,7 +298,7 @@ endfunction
 
 " :FuFile {{{1
 
-function! s:cmd_file(file)
+function! fileutils#_cmd_file(file)
     let ftype = getftype(a:file)
     call s:echomsg("'".a:file."' is '".(ftype !=# '' ? ftype : 'unknown')."'.")
 endfunction
@@ -306,7 +306,7 @@ endfunction
 
 " :FuChmod {{{1
 
-function! s:cmd_chmod(opt, ...)
+function! fileutils#_cmd_chmod(opt, ...)
     if !executable('chmod')
         echoerr 'fileutils: chmod is not in the PATH.'
         return
@@ -330,7 +330,7 @@ function! s:check_chmod_opt(opt)
     return a:opt =~# '^'.s:MODE_REGEX.'$'
 endfunction
 
-function! s:complete_chmod(arglead, cmdline, cursorpos)
+function! fileutils#_complete_chmod(arglead, cmdline, cursorpos)
     let cmdline = substitute(a:cmdline, '^[A-Z][A-Za-z0-9]*\s*', '', '')
     if cmdline =~# '^\s*$'
         " Return most frequently used MODE arguments.

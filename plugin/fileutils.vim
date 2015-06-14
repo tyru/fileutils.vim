@@ -23,23 +23,23 @@ let g:fileutils_commands = get(g:, 'fileutils_commands', {})
 let s:EX_COMMANDS = {
 \   'FuOpen': {
 \       'opt': '-bar -nargs=1 -complete=file',
-\       'def': 'call s:cmd_open(<f-args>)',
+\       'def': 'call fileutils#_cmd_open(<f-args>)',
 \   },
 \   'FuDelete': {
 \       'opt': '-bar -bang -nargs=+ -complete=file',
-\       'def': 'call s:cmd_delete([<f-args>], <bang>0)',
+\       'def': 'call fileutils#_cmd_delete([<f-args>], <bang>0)',
 \   },
 \   'FuCopy': {
 \       'opt': '-bar -nargs=+ -complete=file',
-\       'def': 'call s:cmd_copy(<f-args>)',
+\       'def': 'call fileutils#_cmd_copy(<f-args>)',
 \   },
 \   'FuRename': {
 \       'opt': '-bar -nargs=+ -complete=file',
-\       'def': 'call s:cmd_rename(<f-args>)',
+\       'def': 'call fileutils#_cmd_rename(<f-args>)',
 \   },
 \   'FuMkdir': {
 \       'opt': '-bar -nargs=+ -complete=dir',
-\       'def': 'call s:cmd_mkdir(<f-args>)',
+\       'def': 'call fileutils#_cmd_mkdir(<f-args>)',
 \   },
 \   'FuMkcd': {
 \       'opt': '-bar -nargs=1 -complete=dir',
@@ -47,11 +47,11 @@ let s:EX_COMMANDS = {
 \   },
 \   'FuFile': {
 \       'opt': '-bar -nargs=1 -complete=file',
-\       'def': 'call s:cmd_file(<f-args>)',
+\       'def': 'call fileutils#_cmd_file(<f-args>)',
 \   },
 \   'FuChmod': {
-\       'opt': '-bar -nargs=+ -complete=customlist,s:complete_chmod',
-\       'def': 'call s:cmd_chmod(<f-args>)',
+\       'opt': '-bar -nargs=+ -complete=customlist,fileutils#_complete_chmod',
+\       'def': 'call fileutils#_cmd_chmod(<f-args>)',
 \   },
 \}
 
