@@ -218,7 +218,7 @@ function! s:do_rename_or_copy_one(rename, from, to)
 
     if getftype(from) ==# ''
         echoerr "fileutils: No such a file: '" . from . "'"
-        continue
+        return
     endif
     if isdirectory(to)
         let to = to . '/' . fnamemodify(from, ':t')
